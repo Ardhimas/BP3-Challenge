@@ -49,11 +49,12 @@ public class bp3challenge{
 		}
 	}			
 
+	//Method to populate dateMap
 	public static HashMap<Date,int[]> setDateMap(JSONArray arr, HashMap<Date,int[]> dateMap) throws Exception{
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		//Put open and close counts into dateMap
 		for (int i = 0; i < arr.size(); i++) {
-			Object rawDate = ((JSONObject)arr.get(i)).get("createDate").toString();
+			Object rawDate = ((JSONObject)arr.get(i)).get("createDate");
 			String strDate = rawDate.toString();
 			Date date = df.parse(strDate);
 
@@ -69,11 +70,30 @@ public class bp3challenge{
 				combineCount[1] = oldCount[1] + newCount[1];
 				dateMap.put(date, combineCount);
 			}
+			Object rawDate2 = ((JSONObject)arr.get(i)).get("closeDate");
+			String str2 = "";
+			if(rawDate2 != null){
+				str2 = rawDate.toString();
+				date = df.parse(strDate);
+				//If key is new, add it
+				if(!dateMap.containsKey(date)){
+					dateMap.put(date, getOpenCloseCount(arr,date));
+				}else{
+					//otherwise, combine values
+					int[] oldCount = dateMap.get(date);
+					int[] newCount = getOpenCloseCount(arr,date);
+					int[] combineCount = new int[2];
+					combineCount[0] = oldCount[0] + newCount[0];
+					combineCount[1] = oldCount[1] + newCount[1];
+					dateMap.put(date, combineCount);
+				}
+			}
+			
 		}
 		return dateMap;
 	}
 
-	//Helper function to populate HashMap containing dates and open and close counts
+	//Helper method to populate HashMap containing dates and open and close counts
 	public static int[] getOpenCloseCount(JSONArray arr, Date date) throws Exception{
 		Date beginTime = new Date(Long.MIN_VALUE);
 		//Int array where first value is open tasks, and second is closed tasks
@@ -87,12 +107,14 @@ public class bp3challenge{
 			if(openDate != null){
 				String openDateString = openDate.toString();
 				Date dfoDate = df.parse(openDateString);
+				if(dfoDate.compareTo(date) == 0)
 				tasks[0]++;
 			}
 			Object closeDate = ((JSONObject)arr.get(i)).get("closeDate");
 			if(closeDate != null){
 				String closeDateString = closeDate.toString();
 				Date dfcDate = df.parse(closeDateString);
+				if(dfcDate.compareTo(date) == 0)
 				tasks[1]++;
 			}
 		}

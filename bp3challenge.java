@@ -19,7 +19,7 @@ public class bp3challenge{
 
 			//HashMap containing dates and open and close count for that date
 			HashMap<Date,int[]> dateMap = new HashMap<Date,int[]>();
-			//Put open and close count into dateMap
+			//Put open and close counts into dateMap
 			for (int i = 0; i < arr.size(); i++) {
 				Object rawDate = ((JSONObject)arr.get(i)).get("createDate").toString();
 				String strDate = rawDate.toString();
@@ -67,7 +67,6 @@ public class bp3challenge{
 		}
 	}			
 
-	//Date format is YYYY-MM-DD
 	public static int[] getOpenCloseCount(JSONArray arr, Date date) throws Exception{
 		Date beginTime = new Date(Long.MIN_VALUE);
 		//Int array where first value is open tasks, and second is closed tasks

@@ -19,25 +19,7 @@ public class bp3challenge{
 
 			//HashMap containing dates and open and close count for that date
 			HashMap<Date,int[]> dateMap = new HashMap<Date,int[]>();
-			//Put open and close counts into dateMap
-			for (int i = 0; i < arr.size(); i++) {
-				Object rawDate = ((JSONObject)arr.get(i)).get("createDate").toString();
-				String strDate = rawDate.toString();
-				Date date = df.parse(strDate);
-
-				//If key is new, add it
-				if(!dateMap.containsKey(date)){
-					dateMap.put(date, getOpenCloseCount(arr,date));
-				}else{
-					//otherwise, combine values
-					int[] oldCount = dateMap.get(date);
-					int[] newCount = getOpenCloseCount(arr,date);
-					int[] combineCount = new int[2];
-					combineCount[0] = oldCount[0] + newCount[0];
-					combineCount[1] = oldCount[1] + newCount[1];
-					dateMap.put(date, combineCount);
-				}
-			}
+			dateMap = setDateMap(arr,dateMap);
 
 			//Given date, get current open and closed tasks count
 			String testDate = "2015-02-14T18:24:15Z";
@@ -67,6 +49,31 @@ public class bp3challenge{
 		}
 	}			
 
+	public static HashMap<Date,int[]> setDateMap(JSONArray arr, HashMap<Date,int[]> dateMap) throws Exception{
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		//Put open and close counts into dateMap
+		for (int i = 0; i < arr.size(); i++) {
+			Object rawDate = ((JSONObject)arr.get(i)).get("createDate").toString();
+			String strDate = rawDate.toString();
+			Date date = df.parse(strDate);
+
+			//If key is new, add it
+			if(!dateMap.containsKey(date)){
+				dateMap.put(date, getOpenCloseCount(arr,date));
+			}else{
+				//otherwise, combine values
+				int[] oldCount = dateMap.get(date);
+				int[] newCount = getOpenCloseCount(arr,date);
+				int[] combineCount = new int[2];
+				combineCount[0] = oldCount[0] + newCount[0];
+				combineCount[1] = oldCount[1] + newCount[1];
+				dateMap.put(date, combineCount);
+			}
+		}
+		return dateMap;
+	}
+
+	//Helper function to populate HashMap containing dates and open and close counts
 	public static int[] getOpenCloseCount(JSONArray arr, Date date) throws Exception{
 		Date beginTime = new Date(Long.MIN_VALUE);
 		//Int array where first value is open tasks, and second is closed tasks
@@ -93,6 +100,7 @@ public class bp3challenge{
 		return tasks;
 	}
 
+	//Takes HashMap of Date and int array, initial date and final date, returns number of tasks opened and closed in that period
 	public static int[] getOpenCloseRange(HashMap<Date,int[]> dateMap, Date begin, Date end){
 		int[] count = new int[2];
 		for (Map.Entry<Date,int[]> entry : dateMap.entrySet()) {
@@ -104,6 +112,7 @@ public class bp3challenge{
 		return count;
 	}
 
+	//Takes HashMap of Date and int array and date, returns the number of currently open and closed tasks
 	public static int[] getOpenCloseDate(HashMap<Date,int[]> dateMap, Date date){
 		Date initDate = new Date(Long.MIN_VALUE);
 		int[] count = getOpenCloseRange(dateMap, initDate, date);
@@ -112,6 +121,7 @@ public class bp3challenge{
 		return count;
 	}
 
+	//Takes an array of JSON objects and and an instance ID, returns number of tasks with that instance ID
 	public static int taskCount(JSONArray arr, String instanceId){
 		int count = 0;
 		for (int i = 0; i < arr.size(); i++) {
@@ -123,6 +133,7 @@ public class bp3challenge{
 		return count;
 	}
 
+	//Takes the array of JSON objects and an instance ID, returns name of most recent task with that instance ID
 	public static String mostRecent(JSONArray arr, String instanceId) throws Exception{
 		String mostRecentId = "";
 		String name = "";
